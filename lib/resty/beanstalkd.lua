@@ -46,11 +46,11 @@ function use(self, tube)
     local cmd = {"use", " ", tube, "\r\n"}
     local bytes, err = sock:send(tabconcat(cmd))
     if not bytes then
-        return nil, "failed to use tube:" .. err
+        return nil, "failed to use tube, send data error: " .. err
     end
     local line, err = sock:receive()
     if not line then
-        return nil, "failed to use tube:" .. err
+        return nil, "failed to use tube, receive data error: " .. err
     end
     return line
 end
@@ -66,17 +66,13 @@ function put(self, body, pri, delay, ttr)
     local cmd = {"put", " ", pri, " ", delay, " ", ttr, " ", strlen(body), "\r\n", body, "\r\n"}
     local bytes, err = sock:send(tabconcat(cmd))
     if not bytes then
-        return nil, "failed to put:" .. err
+        return nil, "failed to put, send data error: " .. err
     end
     local line, err = sock:receive()
     if not line then
-        return nil, "failed to put:" .. err
+        return nil, "failed to put, receive data error:" .. err
     end
-    local id = strmatch(line, "^INSERTED (%d+)$")
-    if id then
-        return id, line
-    end
-    local id = strmatch(line, "^BURIED (%d+)$")
+    local id = strmatch(line, " (%d+)$")
     if id then
         return id, line
     end
@@ -91,11 +87,11 @@ function delete(self, id)
     local cmd = {"delete", " ", id, "\r\n"}
     local bytes, err = sock:send(tabconcat(cmd))
     if not bytes then
-        return nil, "failed to delete:" .. err
+        return nil, "failed to delete, send data error: " .. err
     end
     local line, err = sock:receive()
     if not line then
-        return nil, "failed to delete:" .. err
+        return nil, "failed to delete, receive data error: " .. err
     end
     if line == "DELETED" then
         return true, line
@@ -103,51 +99,26 @@ function delete(self, id)
     return false, line
 end
 
-function list_tubes(self)
+function reserve(self, timeout)
     local sock = self.sock
-    if not sock then
-        return nil, "not initialized"
+    local cmd = {"reserve", "\r\n"}
+    if timeout then
+        cmd = {"reserve-with-timeout", " ", timeout, "\r\n"}
     end
-    local bytes, err = sock:send("list-tubes\r\n")
-    if not bytes then
-        return nil, "failed to list-tubes:" .. err
-    end
-    local line, err = sock:receive()
-    if not line then
-        return nil, "failed to list-tubes:" .. err
-    end
-    local size = strmatch(line, "^OK (%d+)$")
-    if not size then
-        return nil, "failed to list-tubes:" .. err
-    end
-    local line, err = sock:receive(size)
-    if not line then
-        return nil, "failed to list-tubes:" .. err
-    end
-    return line, nil
-end
-
-function stats_tube(self, name)
-    local sock = self.sock
-    if not sock then
-        return nil, "not initialized"
-    end
-    local cmd = {"stats-tube", " ", name, "\r\n"}
     local bytes, err = sock:send(tabconcat(cmd))
     if not bytes then
-        return nil, "failed to stats-tube:" .. err
+        return nil, "failed to reserve, send data error: " .. err
     end
-    local line, err = sock:receive()
     local line, err = sock:receive()
     if not line then
-        return nil, "failed to stats-tube:" .. err
+        return nil, "failed to reserve, receive data error: " .. err
     end
-    local size = strmatch(line, "^OK (%d+)$")
-    if size then
-        local line, err = sock:receive(size)
-        return line, nil
+    local id, size = strmatch(line, "^RESERVED (%d+) (%d+)$")
+    if id and size then
+        local data, err = sock:receive(size)
+        return id, data
     end
-    return line, nil
+    return false, line
 end
 
 function close(self)
@@ -155,6 +126,7 @@ function close(self)
     if not sock then
         return nil, "not initialized"
     end
+    sock:send("quit\r\n")
     return sock:close()
 end
 

@@ -6,7 +6,6 @@
     server {
         location /test {
             content_by_lua '
-
                 local beanstalkd = require 'resty.beanstalkd'
 
                 -- new and connect
@@ -15,45 +14,44 @@
                     ngx.say("failed to init beanstalkd:", err)
                     return
                 end
+                ngx.say("initialized ok")
 
                 local ok, err = bean:connect()
                 if not ok then
                     ngx.say("failed to connect beanstalkd:", err)
                     return
                 end
+                ngx.say("connect ok")
 
                 -- use tube
                 local ok, err = bean:use("smallfish")
                 if not ok then
                     ngx.say("failed to use tube:", err)
-                    return
                 end
-                ngx.say("use tube ok:")
+                ngx.say("use smallfish tube ok")
 
                 -- put job
-                local ok, err = bean:put("hello")
-                if not ok then
-                    ngx.say("failed to put hello:", err)
-                    return
+                local id, err = bean:put("hello")
+                if not id then
+                    ngx.say("failed to put hello to smallfish tube, error:", err)
                 end
-                ngx.say("put ok, id:", ok)
+                ngx.say("put hello to smallfish tube, id:", id)
+
+                -- reserve job
+                local id, data = bean:reserve(2)
+                if not id then
+                    ngx.say("reserve hello failed, error:", id, data)
+                else
+                    ngx.say("reserve hello ok, id:", id, "data:", data)
+                end
 
                 -- delete job
-                local ok, err = bean:delete(10)
-                if ok == nil then
-                    ngx.say("failed to delete:", err)
-                    return
-                elseif ok == false then
-                    ngx.say("failed to delete:", err)
-                elseif ok then
-                    ngx.say("delete ok")
+                local ok, err = bean:delete(id)
+                if ok then
+                    ngx.say("delete ok, id:", id)
+                else
+                    ngx.say("delete failed, error:", ok, err)
                 end
-
-                local ok, err = bean:list_tubes()
-                ngx.say("list_tubes:\r\n", ok)
-
-                local ok, err = bean:stats_tube("smallfish")
-                ngx.say("stats_tube:\r\n", ok)
 
                 -- close
                 bean:close()
