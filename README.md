@@ -1,5 +1,22 @@
+Name
+====
 
-**Example**
+lua-resty-beanstalkd - non-blocking beanstalkd lib for ngx_lua.
+
+Status
+======
+
+This library is considered experimental and still under active development.
+
+The API is still in flux and may change without notice.
+
+Description
+===========
+
+This library requires an nginx, the [ngx_lua module](http://wiki.nginx.org/HttpLuaModule)
+
+Synopsis
+========
 
     lua_package_path "/path/to/lua-resty-beanstalkd/lib/?.lua;;";
 
@@ -66,3 +83,37 @@
            ';
         }
     }
+
+
+Author
+======
+
+Chen "smallfish" Xiaoyu (陈小玉) <smallfish.xy@gmail.com>
+
+Copyright and License
+=====================
+
+This module is licensed under the BSD license.
+
+Copyright (C) 2012, by Chen "smallfish" Xiaoyu (陈小玉) <smallfish.xy@gmail.com>
+
+Portions of the code are from [lua-resty-memcached](https://github.com/agentzh/lua-resty-memcached) Copyright (C) 2012, by Zhang "agentzh" Yichun (章亦春) <agentzh@gmail.com>.
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+See Also
+========
+* [ngx_lua module](http://wiki.nginx.org/HttpLuaModule)
+* [beanstalkd protocol specification](https://github.com/kr/beanstalkd/blob/master/doc/protocol.txt)
+* [lua-resty-memcached](https://github.com/agentzh/lua-resty-memcached)
+* [lua-resty-redis](https://github.com/agentzh/lua-resty-redis)
+* [lua-resty-mysql](https://github.com/agentzh/lua-resty-mysql)
+
