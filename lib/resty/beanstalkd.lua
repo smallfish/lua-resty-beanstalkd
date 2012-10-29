@@ -6,6 +6,7 @@ _VERSION = "0.01"
 
 local tcp       = ngx.socket.tcp
 local strlen    = string.len
+local strsub    = string.sub
 local strmatch  = string.match
 local tabconcat = table.concat
 
@@ -53,6 +54,27 @@ function use(self, tube)
         return nil, "failed to use tube, receive data error: " .. err
     end
     return line
+end
+
+function watch(self, tube)
+    local sock = self.sock
+    if not sock then
+        return nil, "not initialized"
+    end
+    local cmd = {"watch", " ", tube, "\r\n"}
+    local bytes, err = sock:send(tabconcat(cmd))
+    if not bytes then
+        return nil, "failed to watch tube, send data error: " .. err
+    end
+    local line, err = sock:receive()
+    if not line then
+        return nil, "failed to watch tube, receive data error: " .. err
+    end
+    local size = strmatch(line, "^WATCHING (%d+)$")
+    if size then
+        return size, line
+    end
+    return 0, line
 end
 
 function put(self, body, pri, delay, ttr)
@@ -114,9 +136,9 @@ function reserve(self, timeout)
         return nil, "failed to reserve, receive data error: " .. err
     end
     local id, size = strmatch(line, "^RESERVED (%d+) (%d+)$")
-    if id and size then
-        local data, err = sock:receive(size)
-        return id, data
+    if id and size then -- remove \r\n
+        local data, err = sock:receive(size+2)
+        return id, strsub(data, 1, strlen(data)-2)
     end
     return false, line
 end

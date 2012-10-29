@@ -6,6 +6,7 @@
     server {
         location /test {
             content_by_lua '
+
                 local beanstalkd = require 'resty.beanstalkd'
 
                 -- new and connect
@@ -37,20 +38,27 @@
                 end
                 ngx.say("put hello to smallfish tube, id:", id)
 
+                -- watch tube
+                local ok, err = bean:watch("smallfish")
+                if not ok then
+                    ngx.say("failed to watch tube smallfish, error:", err)
+                    return
+                end
+                ngx.say("watch smallfish tube ok, tube size:", ok)
+
                 -- reserve job
-                local id, data = bean:reserve(2)
+                local id, data = bean:reserve()
                 if not id then
                     ngx.say("reserve hello failed, error:", id, data)
                 else
                     ngx.say("reserve hello ok, id:", id, "data:", data)
-                end
-
-                -- delete job
-                local ok, err = bean:delete(id)
-                if ok then
-                    ngx.say("delete ok, id:", id)
-                else
-                    ngx.say("delete failed, error:", ok, err)
+                    -- delete job
+                    local ok, err = bean:delete(id)
+                    if ok then
+                        ngx.say("delete ok, id:", id)
+                    else
+                        ngx.say("delete failed, id:", id, ok, err)
+                    end
                 end
 
                 -- close
