@@ -63,7 +63,7 @@ Synopsis
                 end
                 ngx.say("watch smallfish tube ok, tube size:", ok)
 
-                -- reserve job
+                -- reserve job, reserve(timeout?)
                 local id, data = bean:reserve()
                 if not id then
                     ngx.say("reserve hello failed, error:", id, data)
