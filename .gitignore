@@ -1,0 +1,7 @@
+wp
+*.swo
+*~
+go
+t/servroot/
+reindex
+*.t_
