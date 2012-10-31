@@ -78,8 +78,13 @@ Synopsis
                     end
                 end
 
-                -- close
-                bean:close()
+                -- put it into the connection pool of size 100,
+                -- with 0 idle timeout
+
+                bean:set_keepalive(0, 100)
+
+                -- close and quit beanstalkd
+                -- bean:close()
            ';
         }
     }
