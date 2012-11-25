@@ -17,13 +17,13 @@ $ENV{TEST_NGINX_RESOLVER} = '8.8.8.8';
 $ENV{TEST_NGINX_BEANSTALKD_PORT} ||= 11300;
 
 no_long_string();
-#no_diff();
+no_shuffle();
 
 run_tests();
 
 __DATA__
 
-=== TEST 1: basic put reserve delete
+=== TEST 1: put
 --- http_config eval: $::HttpConfig
 --- config
     location /t {
@@ -50,38 +50,61 @@ __DATA__
                 return
             end
 
-            ngx.say("1: put: ", id)
-
-            local ok, err = bean:watch("default")
-            if not ok then
-                ngx.say("4: failed to watch: ", err)
-                return
-            end
-
-            local id, data = bean:reserve()
-            if not id then
-                ngx.say("5: failed to reserve: ", id)
-                return
-            else
-                ngx.say("2: reserve: ", id)
-                local ok, err = bean:delete(id)
-                if not ok then
-                    ngx.say("6: failed to delete: ", id)
-                    return
-                end
-                ngx.say("3: delete: ", id)
-            end
+            ngx.say("put: ", id)
 
             bean:close()
-
         ';
     }
 --- request
     GET /t
 --- response_body_like chop
-1: put: \d+
-2: reserve: \d+
-3: delete: \d+
+put: \d+
+--- no_error_log
+[error]
+
+=== TEST 2: reserve and delete
+--- http_config eval: $::HttpConfig
+--- config
+    location /t {
+        content_by_lua '
+            local beanstalkd = require "resty.beanstalkd"
+
+            local bean, err = beanstalkd:new()
+
+            local ok, err = bean:connect("127.0.0.1", $TEST_NGINX_BEANSTALKD_PORT)
+            if not ok then
+                ngx.say("1: failed to connect: ", err)
+                return
+            end
+
+            local ok, err = bean:watch("default")
+            if not ok then
+                ngx.say("2: failed to watch: ", err)
+                return
+            end
+
+            local id, data = bean:reserve()
+            if not id then
+                ngx.say("3: failed to reserve: ", id)
+                return
+            else
+                ngx.say("1: reserve: ", id)
+                local ok, err = bean:delete(id)
+                if not ok then
+                    ngx.say("4: failed to delete: ", id)
+                    return
+                end
+                ngx.say("2: delete: ", id)
+            end
+
+            bean:close()
+        ';
+    }
+--- request
+GET /t
+--- response_body_like chop
+1: reserve: \d+
+2: delete: \d+
 --- no_error_log
 [error]
 

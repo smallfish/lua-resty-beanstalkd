@@ -32,7 +32,7 @@ __DATA__
         ';
     }
 --- request
-    GET /t
+GET /t
 --- response_body_like chop
 ^\d+\.\d+$
 --- no_error_log
