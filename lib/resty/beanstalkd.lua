@@ -1,8 +1,7 @@
 -- Copyright (C) 2012 Chen "smallfish" Xiaoyu (陈小玉)
 
-module("resty.beanstalkd", package.seeall)
-
-_VERSION = "0.01"
+local setmetatable = setmetatable
+local error = error
 
 local tcp       = ngx.socket.tcp
 local strlen    = string.len
@@ -10,8 +9,11 @@ local strsub    = string.sub
 local strmatch  = string.match
 local tabconcat = table.concat
 
-local class = resty.beanstalkd
-local mt    = {__index = class}
+module(...)
+
+_VERSION = "0.02"
+
+local mt = { __index = _M }
 
 function new(self)
     local sock, err = tcp()
@@ -160,7 +162,11 @@ function close(self)
     return sock:close()
 end
 
--- to prevent use of casual module global variables
-getmetatable(class).__newindex = function (table, key, val)
-    error("attempt to write to undeclared variable " .. key .. "")
-end
+local class_mt = {
+    -- to prevent use of casual module global variables
+    __newindex = function (table, key, val)
+        error('attempt to write to undeclared variable "' .. key .. '"')
+    end
+}
+
+setmetatable(_M, class_mt)
