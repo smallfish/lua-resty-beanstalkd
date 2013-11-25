@@ -28,7 +28,7 @@ __DATA__
     location /t {
         content_by_lua '
             local beanstalkd = require "resty.beanstalkd"
-            ngx.say(beanstalkd._VERSION)
+            ngx.say(beanstalkd.VERSION)
         ';
     }
 --- request

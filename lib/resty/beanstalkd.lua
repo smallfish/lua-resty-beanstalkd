@@ -1,21 +1,24 @@
 -- Copyright (C) 2012 Chen "smallfish" Xiaoyu (陈小玉)
 
-local setmetatable = setmetatable
-local error = error
-
 local tcp       = ngx.socket.tcp
 local strlen    = string.len
 local strsub    = string.sub
 local strmatch  = string.match
 local tabconcat = table.concat
 
-module(...)
+local _M = {}
 
-_VERSION = "0.02"
+_M.VERSION = "0.03"
 
-local mt = { __index = _M }
+local mt = {
+    __index = _M,
+    -- to prevent use of casual module global variables
+    __newindex = function(table, key, val)
+        error('attempt to write to undeclared variable "' .. key .. '"')
+    end,
+}
 
-function new(self)
+function _M.new(self)
     local sock, err = tcp()
     if not sock then
         return nil, err
@@ -23,7 +26,7 @@ function new(self)
     return setmetatable({sock = sock}, mt)
 end
 
-function set_timeout(self, timeout)
+function _M.set_timeout(self, timeout)
     local sock = self.sock
     if not sock then
         return nil, "not initialized"
@@ -31,7 +34,7 @@ function set_timeout(self, timeout)
     return sock:settimeout(timeout)
 end
 
-function set_keepalive(self, ...)
+function _M.set_keepalive(self, ...)
     local sock = self.sock
     if not sock then
         return nil, "not initialized"
@@ -39,7 +42,7 @@ function set_keepalive(self, ...)
     return sock:setkeepalive(...)
 end
 
-function connect(self, host, port, ...)
+function _M.connect(self, host, port, ...)
     local sock = self.sock
     if not sock then
         return nil, "not initialized"
@@ -49,7 +52,7 @@ function connect(self, host, port, ...)
     return sock:connect(host, port, ...)
 end
 
-function use(self, tube)
+function _M.use(self, tube)
     local sock = self.sock
     if not sock then
         return nil, "not initialized"
@@ -66,7 +69,7 @@ function use(self, tube)
     return line
 end
 
-function watch(self, tube)
+function _M.watch(self, tube)
     local sock = self.sock
     if not sock then
         return nil, "not initialized"
@@ -87,7 +90,7 @@ function watch(self, tube)
     return 0, line
 end
 
-function put(self, body, pri, delay, ttr)
+function _M.put(self, body, pri, delay, ttr)
     local sock = self.sock
     if not sock then
         return nil, "not initialized"
@@ -111,7 +114,7 @@ function put(self, body, pri, delay, ttr)
     return nil, line
 end
 
-function delete(self, id)
+function _M.delete(self, id)
     local sock = self.sock
     if not sock then
         return nil, "not initialized"
@@ -131,7 +134,7 @@ function delete(self, id)
     return false, line
 end
 
-function reserve(self, timeout)
+function _M.reserve(self, timeout)
     local sock = self.sock
     local cmd = {"reserve", "\r\n"}
     if timeout then
@@ -153,7 +156,7 @@ function reserve(self, timeout)
     return false, line
 end
 
-function close(self)
+function _M.close(self)
     local sock = self.sock
     if not sock then
         return nil, "not initialized"
@@ -162,11 +165,4 @@ function close(self)
     return sock:close()
 end
 
-local class_mt = {
-    -- to prevent use of casual module global variables
-    __newindex = function (table, key, val)
-        error('attempt to write to undeclared variable "' .. key .. '"')
-    end
-}
-
-setmetatable(_M, class_mt)
+return _M
