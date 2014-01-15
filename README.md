@@ -10,6 +10,11 @@ This library is considered experimental and still under active development.
 
 The API is still in flux and may change without notice.
 
+Installation
+============
+Copy the lib/resty/beanstalkd.lua file to the location:
+`/usr/local/openresty/lualib/resty/beanstalkd.lua`
+
 Description
 ===========
 
