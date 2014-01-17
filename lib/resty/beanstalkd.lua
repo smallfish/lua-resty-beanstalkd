@@ -156,6 +156,67 @@ function _M.reserve(self, timeout)
     return false, line
 end
 
+function _M.release(self, id, pri, delay)
+    local sock = self.sock
+    if not sock then
+        return nil, "not initialized"
+    end
+    pri = pri or 2 ^ 32
+    delay = delay or 0
+    local cmd = {"release", " ", id, " ", pri, " ", delay, "\r\n"}
+    local bytes, err = sock:send(tabconcat(cmd))
+    if not bytes then
+        return nil, "failed to release, send data error: " .. err
+    end
+    local line, err = sock:receive()
+    if not line then
+        return nil, "failed to release, receive data error: " .. err
+    end
+    if line == "RELEASED" then
+        return true, line
+    end
+    return false, line
+end
+
+function _M.bury(self, id, pri)
+    local sock = self.sock
+    if not sock then
+        return nil, "not initialized"
+    end
+    pri = pri or 2 ^ 32
+    local cmd = {"bury", " ", id, " ", pri, "\r\n"}
+    local bytes, err = sock:send(tabconcat(cmd))
+    if not bytes then
+        return nil, "failed to release, send data error: " .. err
+    end
+    local line, err = sock:receive()
+    if not line then
+        return nil, "failed to release, receive data error: " .. err
+    end
+    if line == "BURIED" then
+        return true, line
+    end
+    return false, line
+end
+
+function _M.kick(self, bound)
+    local sock = self.sock
+    if not sock then
+        return nil, "not initialized"
+    end
+    local cmd = {"kick", " ", bound, "\r\n"}
+    local bytes, err = sock:send(tabconcat(cmd))
+    if not bytes then
+        return nil, "failed to release, send data error: " .. err
+    end
+    local line, err = sock:receive()
+    if not line then
+        return nil, "failed to release, receive data error: " .. err
+    end
+    local count = strmatch(line, "^KICKED (%d+)$")
+    return count
+end
+
 function _M.close(self)
     local sock = self.sock
     if not sock then
