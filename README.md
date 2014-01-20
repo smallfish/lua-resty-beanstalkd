@@ -100,7 +100,7 @@ server {
             end
 
             -- kick job
-            local count = bean:kick(1)
+            local count, err = bean:kick(1)
             if not count then
                 ngx.say("kick failed, error:", err)
             else
