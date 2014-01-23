@@ -114,6 +114,14 @@ server {
                 ngx.say("reserve hello ok, id:", id, " data:", data)
             end
 
+            -- peek job
+            local id, data = bean:peek(id)
+            if not id then
+                ngx.say("peek failed, id not found")
+            else
+                ngx.say("peek ok, data:", data)
+            end
+
             -- delete job
             local ok, err = bean:delete(id)
             if ok then
