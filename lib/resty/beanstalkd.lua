@@ -151,7 +151,7 @@ function _M.reserve(self, timeout)
     local id, size = strmatch(line, "^RESERVED (%d+) (%d+)$")
     if id and size then -- remove \r\n
         local data, err = sock:receive(size+2)
-        return id, strsub(data, 1, strlen(data)-2)
+        return id, strsub(data, 1, -3)
     end
     return false, line
 end
@@ -215,6 +215,25 @@ function _M.kick(self, bound)
     end
     local count = strmatch(line, "^KICKED (%d+)$")
     return count, nil
+end
+
+function _M.peek(self, id)
+    local sock = self.sock
+    local cmd = {"peek", " ", id, "\r\n"}
+    local bytes, err = sock:send(tabconcat(cmd))
+    if not bytes then
+        return nil, "failed to peek, send data error: " .. err
+    end
+    local line, err = sock:receive()
+    if not line then
+        return nil, "failed to peek, receive data error: " .. err
+    end
+    local id, size = strmatch(line, "^FOUND (%d+) (%d+)$")
+    if id and size then -- remove \r\n
+        local data, err = sock:receive(size+2)
+        return id, strsub(data, 1, -3)
+    end
+    return false, line
 end
 
 function _M.close(self)
