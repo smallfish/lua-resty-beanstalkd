@@ -69,13 +69,52 @@ Synopsis
                     ngx.say("reserve hello failed, error:", id, data)
                 else
                     ngx.say("reserve hello ok, id:", id, "data:", data)
-                    -- delete job
-                    local ok, err = bean:delete(id)
-                    if ok then
-                        ngx.say("delete ok, id:", id)
-                    else
-                        ngx.say("delete failed, id:", id, ok, err)
-                    end
+                end
+
+                -- release job
+                local ok, err = bean:release(id)
+                if not ok then
+                    ngx.say("failed to release, id:", id, " error:", err)
+                else
+                    ngx.say("release ok, id:", id)
+                end
+
+                local id, data = bean:reserve()
+                if not id then
+                    ngx.say("reserve hello failed, error:", id, data)
+                else
+                    ngx.say("reserve hello ok, id:", id, " data:", data)
+                end
+
+                -- bury job
+                local ok, err = bean:bury(id)
+                if not ok then
+                    ngx.say("bury failed, id:", id, " error:", err)
+                else
+                    ngx.say("bury ok, id:", id)
+                end
+
+                -- kick job
+                local count = bean:kick(1)
+                if not count then
+                    ngx.say("kick failed, error:", err)
+                else
+                    ngx.say("kick ok, count:", count)
+                end
+
+                local id, data = bean:reserve()
+                if not id then
+                    ngx.say("reserve hello failed, error:", id, data)
+                else
+                    ngx.say("reserve hello ok, id:", id, " data:", data)
+                end
+
+                -- delete job
+                local ok, err = bean:delete(id)
+                if ok then
+                    ngx.say("delete ok, id:", id)
+                else
+                    ngx.say("delete failed, id:", id, ok, err)
                 end
 
                 -- put it into the connection pool of size 100,
