@@ -50,7 +50,7 @@ __DATA__
                 return
             else
                 ngx.say("1: reserve: ", id)
-                local count = bean:kick(1)
+                local count, err = bean:kick(1)
                 if not count then
                     ngx.say("4: kick failed, error:", err)
                     return
