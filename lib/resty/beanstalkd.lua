@@ -151,7 +151,7 @@ function _M.reserve(self, timeout)
     local id, size = strmatch(line, "^RESERVED (%d+) (%d+)$")
     if id and size then -- remove \r\n
         local data, err = sock:receive(size+2)
-        return id, strsub(data, 1, strlen(data)-2)
+        return id, strsub(data, 1, -3)
     end
     return false, line
 end
@@ -231,7 +231,7 @@ function _M.peek(self, id)
     local id, size = strmatch(line, "^FOUND (%d+) (%d+)$")
     if id and size then -- remove \r\n
         local data, err = sock:receive(size+2)
-        return id, strsub(data, 1, strlen(data)-2)
+        return id, strsub(data, 1, -3)
     end
     return false, line
 end
