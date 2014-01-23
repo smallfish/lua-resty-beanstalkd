@@ -214,7 +214,7 @@ function _M.kick(self, bound)
         return nil, "failed to release, receive data error: " .. err
     end
     local count = strmatch(line, "^KICKED (%d+)$")
-    return count
+    return count, nil
 end
 
 function _M.peek(self, id)

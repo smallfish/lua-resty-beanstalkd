@@ -22,7 +22,7 @@ run_tests();
 
 __DATA__
 
-=== TEST 1: basic
+=== TEST 1: version
 --- http_config eval: $::HttpConfig
 --- config
     location /t {
