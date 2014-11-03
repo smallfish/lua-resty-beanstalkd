@@ -3,7 +3,7 @@
 use Test::Nginx::Socket;
 use Cwd qw(cwd);
 
-repeat_each(3);
+repeat_each(2);
 
 plan tests => repeat_each() * (3 * blocks());
 
@@ -23,7 +23,7 @@ run_tests();
 
 __DATA__
 
-=== TEST 1: put
+=== TEST 1: watch
 --- http_config eval: $::HttpConfig
 --- config
     location /t {
@@ -38,19 +38,13 @@ __DATA__
                 return
             end
 
-            local ok, err = bean:use("default")
-            if not ok then
-                ngx.say("2: failed to use tube: ", err)
-                return
-            end
-           
-            local id, err = bean:put("hello")
-            if not id then
-                ngx.say("3: failed to put: ", err)
+            local size, err = bean:watch("default")
+            if not size then
+                ngx.say("2: failed to watch tube: ", err)
                 return
             end
 
-            ngx.say("put: ", id)
+            ngx.say("watching: ",  size)
 
             bean:close()
         ';
@@ -58,7 +52,7 @@ __DATA__
 --- request
 GET /t
 --- response_body_like chop
-put: \d+
+watching: 1
 --- no_error_log
 [error]
 
