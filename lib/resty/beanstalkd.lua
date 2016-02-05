@@ -156,6 +156,7 @@ function _M.delete(self, id)
 end
 
 function _M.reserve(self, timeout)
+    --Reserve a job from one of the watched tubes, with optional timeout in seconds.
     local sock = self.sock
     local cmd = {"reserve", "\r\n"}
     if timeout then
