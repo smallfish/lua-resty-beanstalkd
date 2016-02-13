@@ -63,7 +63,7 @@ Synopsis
                 end
                 ngx.say("watch smallfish tube ok, tube size:", ok)
 
-                -- reserve job, reserve(timeout?)
+                -- reserve job,with optional timeout in seconds. reserve(timeout?)
                 local id, data = bean:reserve()
                 if not id then
                     ngx.say("reserve hello failed, error:", id, data)
@@ -168,4 +168,3 @@ See Also
 * [lua-resty-memcached](https://github.com/agentzh/lua-resty-memcached)
 * [lua-resty-redis](https://github.com/agentzh/lua-resty-redis)
 * [lua-resty-mysql](https://github.com/agentzh/lua-resty-mysql)
-
