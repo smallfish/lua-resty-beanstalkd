@@ -8,7 +8,7 @@ local tabconcat = table.concat
 
 local _M = {}
 
-_M.VERSION = "0.04"
+_M.VERSION = "0.05"
 
 local mt = {
     __index = _M,
@@ -266,5 +266,42 @@ function _M.close(self)
     sock:send("quit\r\n")
     return sock:close()
 end
+
+
+local function  _manager_command(self, ...)
+    local sock = self.sock
+
+    local bytes, err = sock:send(tabconcat({...}, " ") .. "\r\n")
+    if not bytes then
+        return nil, err
+    end
+
+    local line, err = sock:receive()
+    if not line then
+        return nil, err
+    end
+
+    local size = strmatch(line, "^OK (%d+)$")
+    if not size then
+        return nil, line
+    end
+
+    return sock:receive(size+2)
+end
+
+function _M.stats(self)
+    return _manager_command(self, "stats")
+end
+
+
+function _M.list_tubes(self)
+    return _manager_command(self, "list-tubes")
+end
+
+
+function _M.stats_tube(self, tube)
+    return _manager_command(self, "stats-tube", tube)
+end
+
 
 return _M
