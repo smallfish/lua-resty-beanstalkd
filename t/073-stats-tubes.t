@@ -93,4 +93,36 @@ GET /t
 [error]
 
 
+=== TEST 3: stats_tube invalid tube name
+--- http_config eval: $::HttpConfig
+--- config
+    location /t {
+        content_by_lua '
+            local beanstalkd = require "resty.beanstalkd"
+
+            local bean, err = beanstalkd:new()
+
+            local ok, err = bean:connect("127.0.0.1", $TEST_NGINX_BEANSTALKD_PORT)
+            if not ok then
+                ngx.say("1: failed to connect: ", err)
+                return
+            end
+
+            local res, err = bean:stats_tube(nil)
+            if not res then
+                ngx.say("2: failed to stats: ", err)
+                return
+            end
+
+            bean:close()
+        ';
+    }
+--- request
+GET /t
+--- response_body
+2: failed to stats: input tube name invalid
+--- no_error_log
+[error]
+
+
 
