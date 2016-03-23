@@ -120,7 +120,7 @@ GET /t
 --- request
 GET /t
 --- response_body
-2: failed to stats: input tube name invalid
+2: failed to stats: inputed tube name invalid
 --- no_error_log
 [error]
 
