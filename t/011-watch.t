@@ -51,7 +51,7 @@ __DATA__
     }
 --- request
 GET /t
---- response_body_like chop
+--- response_body
 watching: 1
 --- no_error_log
 [error]
