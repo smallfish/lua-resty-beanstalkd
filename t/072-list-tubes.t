@@ -23,7 +23,7 @@ run_tests();
 
 __DATA__
 
-=== TEST 1: watch
+=== TEST 1: list-tubes
 --- http_config eval: $::HttpConfig
 --- config
     location /t {
@@ -38,21 +38,22 @@ __DATA__
                 return
             end
 
-            local size, err = bean:watch("default")
-            if not size then
-                ngx.say("2: failed to watch tube: ", err)
+            local res, err = bean:list_tubes()
+            if not res then
+                ngx.say("2: failed to stats: ", err)
                 return
             end
 
-            ngx.say("watching: ",  size)
-
             bean:close()
+
+            ngx.say(res)
         ';
     }
 --- request
 GET /t
---- response_body
-watching: 1
+--- response_body_like chop
+---
+[\s\S]*\- default[\s\S]*
 --- no_error_log
 [error]
 
