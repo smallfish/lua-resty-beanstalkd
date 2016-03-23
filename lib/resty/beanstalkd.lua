@@ -300,6 +300,10 @@ end
 
 
 function _M.stats_tube(self, tube)
+    if not tube then
+        return nil, "input tube name invalid"
+    end
+
     return _manager_command(self, "stats-tube", tube)
 end
 
