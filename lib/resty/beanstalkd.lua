@@ -258,6 +258,27 @@ function _M.peek(self, id)
     return false, line
 end
 
+
+function _M.peek_buried(self)
+    local sock = self.sock
+    local cmd = {"peek-buried", "\r\n"}
+    local bytes, err = sock:send(tabconcat(cmd))
+    if not bytes then
+        return nil, "failed to peek, send data error: " .. err
+    end
+    local line, err = sock:receive()
+    if not line then
+        return nil, "failed to peek, receive data error: " .. err
+    end
+    local id, size = strmatch(line, "^FOUND (%d+) (%d+)$")
+    if id and size then -- remove \r\n
+        local data, err = sock:receive(size+2)
+        return id, strsub(data, 1, -3)
+    end
+    return false, line
+end
+
+
 function _M.close(self)
     local sock = self.sock
     if not sock then
