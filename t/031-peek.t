@@ -133,3 +133,73 @@ GET /t
 --- no_error_log
 [error]
 
+=== TEST 3: peek-ready
+--- http_config eval: $::HttpConfig
+--- config
+    location /t {
+        content_by_lua '
+            local beanstalkd = require "resty.beanstalkd"
+
+            local bean, err = beanstalkd:new()
+
+            local ok, err = bean:connect("127.0.0.1", $TEST_NGINX_BEANSTALKD_PORT)
+            if not ok then
+                ngx.say("1: failed to connect: ", err)
+                return
+            end
+
+            local id, err = bean:put("hello")
+            if not id then
+                ngx.say("2: failed to put: ", err)
+                return
+            end
+            bean:put("world")
+            local id, data = bean:peek_ready()
+            if not id then
+                ngx.say("3: peek_ready failed, id not found ", id)
+                return
+            else
+                ngx.say("3: peek_ready: ", data)
+            end
+            id, data = bean:peek_ready()
+            if not id then
+                ngx.say("4: peek_ready failed, id not found ", id)
+                return
+            else
+                ngx.say("4: peek_ready: ", data)
+            end
+
+            id, data = bean:reserve()
+            if not id then
+                ngx.say("5: failed to reserve: ", err)
+                return
+            else
+                bean:delete(id)
+            end
+            id, data = bean:peek_ready()
+            if not id then
+                ngx.say("6: peek_ready failed, id not found ", id)
+                return
+            else
+                ngx.say("6: peek_ready: ", data)
+            end
+
+            -- flush beanstalkd
+            bean:reserve()
+            if not id then
+                ngx.say("7: failed to reserve: ", err)
+                return
+            else
+                bean:delete(id)
+            end
+            bean:close()
+        ';
+    }
+--- request
+GET /t
+--- response_body_like chop
+3: peek_ready: hello
+4: peek_ready: hello
+6: peek_ready: world
+--- no_error_log
+[error]
