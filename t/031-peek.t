@@ -148,12 +148,23 @@ GET /t
                 return
             end
 
+            -- use a seperate tube
+            bean:use("test-peek-ready")
+            local ok, err = bean:watch("test-peek-ready")
+            if not ok then
+                ngx.say("2: failed to watch: ", err)
+                return
+            else
+                bean:ignore("default")
+            end
+
             local id, err = bean:put("hello")
             if not id then
                 ngx.say("2: failed to put: ", err)
                 return
             end
             bean:put("world")
+
             local id, data = bean:peek_ready()
             if not id then
                 ngx.say("3: peek_ready failed, id not found ", id)
@@ -184,8 +195,8 @@ GET /t
                 ngx.say("6: peek_ready: ", data)
             end
 
-            -- flush beanstalkd
-            bean:reserve()
+            -- clean the tube
+            id, data = bean:reserve()
             if not id then
                 ngx.say("7: failed to reserve: ", err)
                 return
