@@ -259,43 +259,35 @@ function _M.peek(self, id)
 end
 
 
-function _M.peek_buried(self)
+local function _peek_job_type(self, job_type)
     local sock = self.sock
-    local cmd = {"peek-buried", "\r\n"}
+    local cmd = {job_type, "\r\n"}
     local bytes, err = sock:send(tabconcat(cmd))
     if not bytes then
-        return nil, "failed to peek-buried, send data error: " .. err
+        return nil, "failed to " .. job_type .. ", send data error: " .. err
     end
     local line, err = sock:receive()
     if not line then
-        return nil, "failed to peek-buried, receive data error: " .. err
+        return nil, "failed to " .. job_type .. ", receive data error: " .. err
     end
     local id, size = strmatch(line, "^FOUND (%d+) (%d+)$")
     if id and size then -- remove \r\n
         local data, err = sock:receive(size+2)
+        if err then
+            return nil, "failed to " .. job_type .. ", receive job body error: " .. err
+        end
         return id, strsub(data, 1, -3)
     end
     return false, line
 end
 
+function _M.peek_buried(self)
+    return _peek_job_type(self, "peek-buried")
+end
+
 
 function _M.peek_ready(self)
-    local sock = self.sock
-    local cmd = {"peek-ready", "\r\n"}
-    local bytes, err = sock:send(tabconcat(cmd))
-    if not bytes then
-        return nil, "failed to peek-ready, send data error: " .. err
-    end
-    local line, err = sock:receive()
-    if not line then
-        return nil, "failed to peek-ready, receive data error: " .. err
-    end
-    local id, size = strmatch(line, "^FOUND (%d+) (%d+)$")
-    if id and size then -- remove \r\n
-        local data, err = sock:receive(size+2)
-        return id, strsub(data, 1, -3)
-    end
-    return false, line
+    return _peek_job_type(self, "peek-ready")
 end
 
 
