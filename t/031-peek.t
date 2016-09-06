@@ -92,7 +92,7 @@ GET /t
                 ngx.say("2: failed to use tube: ", err)
                 return
             end
-           
+
             local id, err = bean:put("hello")
             if not id then
                 ngx.say("3: failed to put: ", err)
@@ -212,5 +212,68 @@ GET /t
 3: peek_ready: hello
 4: peek_ready: hello
 6: peek_ready: world
+--- no_error_log
+[error]
+
+=== TEST 4: peek-delayed
+--- http_config eval: $::HttpConfig
+--- config
+    location /t {
+        content_by_lua '
+            local beanstalkd = require "resty.beanstalkd"
+
+            local bean, err = beanstalkd:new()
+
+            local ok, err = bean:connect("127.0.0.1", $TEST_NGINX_BEANSTALKD_PORT)
+            if not ok then
+                ngx.say("1: failed to connect: ", err)
+                return
+            end
+
+            local ok, err = bean:use("test-peek-delayed")
+            if not ok then
+                ngx.say("2: failed to use tube: ", err)
+                return
+            end
+            bean:watch("test-peek-delayed")
+            bean:ignore("default")
+
+            local id, err = bean:put("hello")
+            if not id then
+                ngx.say("3: failed to put: ", err)
+                return
+            end
+
+            local id, data = bean:reserve()
+            if not id then
+                ngx.say("3: failed to reserve: ", err)
+                return
+            end
+
+            local ok, err = bean:release(id, 2 ^ 32, 100)
+            if not ok then
+                ngx.say("3: failed to delay ", id)
+                return
+            else
+                ngx.say("1: bury: ", id)
+                local id, data = bean:peek_delayed()
+                if not id then
+                    ngx.say("4: peek_delayed failed, id not found ", id)
+                    return
+                else
+                    ngx.say("4: peek_delayed ", data)
+                end
+
+                bean:delete(id)
+            end
+
+            bean:close()
+        ';
+    }
+--- request
+GET /t
+--- response_body_like chop
+1: bury: \d+
+4: peek_delayed hello
 --- no_error_log
 [error]

@@ -291,6 +291,11 @@ function _M.peek_ready(self)
 end
 
 
+function _M.peek_delayed(self)
+    return _peek_job_type(self, "peek-delayed")
+end
+
+
 function _M.close(self)
     local sock = self.sock
     if not sock then
