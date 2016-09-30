@@ -8,7 +8,7 @@ local tabconcat = table.concat
 
 local _M = {}
 
-_M.VERSION = "0.05"
+_M.VERSION = "0.0.5"
 
 local mt = {
     __index = _M,

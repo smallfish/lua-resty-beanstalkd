@@ -34,7 +34,7 @@ __DATA__
 --- request
 GET /t
 --- response_body_like chop
-^\d+\.\d+$
+^\d+\.\d+\.\d+$
 --- no_error_log
 [error]
 
