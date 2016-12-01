@@ -42,6 +42,14 @@ function _M.set_keepalive(self, ...)
     return sock:setkeepalive(...)
 end
 
+function _M.getreusedtimes(self)
+    local sock = self.sock
+    if not sock then
+        return nil, "not initialized"
+    end
+    return sock:getreusedtimes()
+end
+
 function _M.connect(self, host, port, ...)
     local sock = self.sock
     if not sock then
