@@ -95,7 +95,7 @@ function _M.watch(self, tube)
     if size then
         return size, line
     end
-    return 0, line
+    return nil, line
 end
 
 function _M.ignore(self, tube)
@@ -116,7 +116,7 @@ function _M.ignore(self, tube)
     if size then
         return size, line
     end
-    return 0, line
+    return nil, line
 end
 
 function _M.put(self, body, pri, delay, ttr)
