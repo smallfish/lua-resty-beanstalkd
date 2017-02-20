@@ -74,3 +74,37 @@ GET /t
 --- no_error_log
 [error]
 
+
+=== TEST 2: handle ignore failure
+--- http_config eval: $::HttpConfig
+--- config
+    location /t {
+        content_by_lua '
+            local beanstalkd = require "resty.beanstalkd"
+
+            local bean, err = beanstalkd:new()
+
+            local ok, err = bean:connect("127.0.0.1", $TEST_NGINX_BEANSTALKD_PORT)
+            if not ok then
+                ngx.say("1: failed to connect: ", err)
+                return
+            end
+
+            local size, err = bean:ignore("default")
+            if not size then
+                ngx.say("2: failed to ignore tube: ", err)
+                return
+            end
+
+            ngx.say("watching: ",  size)
+
+            bean:close()
+        ';
+    }
+--- request
+GET /t
+--- response_body_like chop
+2: failed to ignore tube: NOT_IGNORED
+--- no_error_log
+[error]
+
