@@ -247,6 +247,35 @@ function _M.kick(self, bound)
     return count, nil
 end
 
+function _M.pause_tube(self, tube, delay)
+    if not tube then
+        return nil, "invalid tube name, please check your input"
+    end
+    -- beanstalkd will increase delay 0 to 1
+    if not delay or delay < 0 then
+        return nil, "invalid delay, please check your input"
+    end
+    local sock = self.sock
+    if not sock then
+        return nil, "not initialized"
+    end
+
+    local cmd = {"pause-tube", " ", tube, " ", delay, "\r\n"}
+    local bytes, err = sock:send(tabconcat(cmd))
+    if not bytes then
+        return nil, "failed to pause-tube, send data error: " .. err
+    end
+    local line
+    line, err = sock:receive()
+    if not line then
+        return nil, "failed to pause-tube, receive data error: " .. err
+    end
+    if line == 'PAUSED' then
+        return true, nil
+    end
+    return false, line
+end
+
 function _M.peek(self, id)
     local sock = self.sock
     local cmd = {"peek", " ", id, "\r\n"}
