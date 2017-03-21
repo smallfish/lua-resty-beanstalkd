@@ -383,6 +383,7 @@ function _M.close(self)
     sock:send("quit\r\n")
     return sock:close()
 end
+_M.quit = _M.close
 
 
 local function  _manager_command(self, ...)
