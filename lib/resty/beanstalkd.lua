@@ -374,6 +374,10 @@ function _M.list_tubes(self)
 end
 
 
+function _M.stats_job(self, id)
+    return _manager_command(self, "stats-job", id)
+end
+
 function _M.stats_tube(self, tube)
     if not tube then
         return nil, "invalid tube name, please check your input"
