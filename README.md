@@ -15,6 +15,16 @@ Description
 
 This library requires an nginx, the [ngx_lua module](http://wiki.nginx.org/HttpLuaModule)
 
+Commands
+========
+
+All beanstalkd commands are supported, following the name convention below:
+* The command name is the method name, with `-` replaced by `_`.
+* The arguments of such method are the arguments of corresponding command.
+For instance, call `bean:stats_tube(tube)` is equal to send `stats-tube tube` to beanstalkd.
+
+For more details, please see the below Synopsis section.
+
 Synopsis
 ========
 
