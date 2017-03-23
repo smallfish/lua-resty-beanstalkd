@@ -247,6 +247,27 @@ function _M.kick(self, bound)
     return count, nil
 end
 
+function _M.touch(self, id)
+    local sock = self.sock
+    if not sock then
+        return nil, "not initialized"
+    end
+    local cmd = {"touch", " ", id, "\r\n"}
+    local bytes, err = sock:send(tabconcat(cmd))
+    if not bytes then
+        return nil, "failed to release, send data error: " .. err
+    end
+    local line
+    line, err = sock:receive()
+    if not line then
+        return nil, "failed to release, receive data error: " .. err
+    end
+    if line == 'TOUCHED' then
+        return true, nil
+    end
+    return false, line
+end
+
 function _M.pause_tube(self, tube, delay)
     if not tube then
         return nil, "invalid tube name, please check your input"
