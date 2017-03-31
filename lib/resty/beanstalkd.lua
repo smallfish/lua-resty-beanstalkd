@@ -247,6 +247,48 @@ function _M.kick(self, bound)
     return count, nil
 end
 
+function _M.kick_job(self, id)
+    local sock = self.sock
+    if not sock then
+        return nil, "not initialized"
+    end
+    local cmd = {"kick-job", " ", id, "\r\n"}
+    local bytes, err = sock:send(tabconcat(cmd))
+    if not bytes then
+        return nil, "failed to release, send data error: " .. err
+    end
+    local line
+    line, err = sock:receive()
+    if not line then
+        return nil, "failed to release, receive data error: " .. err
+    end
+    if line == "KICKED" then
+        return true, nil
+    end
+    return false, line
+end
+
+function _M.touch(self, id)
+    local sock = self.sock
+    if not sock then
+        return nil, "not initialized"
+    end
+    local cmd = {"touch", " ", id, "\r\n"}
+    local bytes, err = sock:send(tabconcat(cmd))
+    if not bytes then
+        return nil, "failed to release, send data error: " .. err
+    end
+    local line
+    line, err = sock:receive()
+    if not line then
+        return nil, "failed to release, receive data error: " .. err
+    end
+    if line == 'TOUCHED' then
+        return true, nil
+    end
+    return false, line
+end
+
 function _M.pause_tube(self, tube, delay)
     if not tube then
         return nil, "invalid tube name, please check your input"
@@ -341,6 +383,7 @@ function _M.close(self)
     sock:send("quit\r\n")
     return sock:close()
 end
+_M.quit = _M.close
 
 
 local function  _manager_command(self, ...)
@@ -373,6 +416,34 @@ function _M.list_tubes(self)
     return _manager_command(self, "list-tubes")
 end
 
+function _M.list_tube_used(self)
+    local sock = self.sock
+    if not sock then
+        return nil, "not initialized"
+    end
+    local bytes, err = sock:send("list-tube-used\r\n")
+    if not bytes then
+        return nil, "failed to list tube used, send data error: " .. err
+    end
+    local line
+    line, err = sock:receive()
+    if not line then
+        return nil, "failed to list tube used, receive data error: " .. err
+    end
+    local tube = strmatch(line, "^USING (.+)$")
+    if not tube then
+        return nil, line
+    end
+    return tube, nil
+end
+
+function _M.list_tubes_watched(self)
+    return _manager_command(self, "list-tubes-watched")
+end
+
+function _M.stats_job(self, id)
+    return _manager_command(self, "stats-job", id)
+end
 
 function _M.stats_tube(self, tube)
     if not tube then
