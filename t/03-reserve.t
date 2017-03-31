@@ -57,6 +57,7 @@ __DATA__
     }
 --- request
 GET /t
+--- timeout: 15
 --- response_body_like chop
 1: reserve: \d+
 --- no_error_log

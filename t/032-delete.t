@@ -63,6 +63,7 @@ __DATA__
     }
 --- request
 GET /t
+--- timeout: 15
 --- response_body_like chop
 1: reserve: \d+
 2: delete: \d+

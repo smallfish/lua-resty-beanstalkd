@@ -272,6 +272,7 @@ GET /t
     }
 --- request
 GET /t
+--- timeout: 15
 --- response_body_like chop
 1: bury: \d+
 4: peek_delayed hello
