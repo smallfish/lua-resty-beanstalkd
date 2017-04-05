@@ -38,7 +38,7 @@ __DATA__
                 return
             end
 
-            local ok, err = bean:use("default")
+            local ok, err = bean:use("hello-put")
             if not ok then
                 ngx.say("2: failed to use tube: ", err)
                 return

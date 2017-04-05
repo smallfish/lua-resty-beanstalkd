@@ -3,6 +3,9 @@ Name
 
 lua-resty-beanstalkd - non-blocking beanstalkd lib for ngx_lua.
 
+[![Build Status](https://api.travis-ci.org/smallfish/lua-resty-beanstalkd.png)](https://travis-ci.org/smallfish/lua-resty-beanstalkd)
+
+
 Status
 ======
 

@@ -38,9 +38,21 @@ __DATA__
                 return
             end
 
-            local ok, err = bean:watch("default")
+            local ok, err = bean:use("hello-peek1")
             if not ok then
-                ngx.say("2: failed to watch: ", err)
+                ngx.say("2: failed to use:", err)
+                return
+            end
+
+            local id, err = bean:put("hello")
+            if not id then
+                ngx.say("3: failed to put: ", err)
+                return
+            end
+
+            local ok, err = bean:watch("hello-peek1")
+            if not ok then
+                ngx.say("4: failed to watch: ", err)
                 return
             end
 
@@ -52,7 +64,7 @@ __DATA__
                 ngx.say("1: reserve: ", id)
                 local id, data = bean:peek(id)
                 if not id then
-                    ngx.say("4: peek failed, id not found")
+                    ngx.say("5: peek failed, id not found")
                     return
                 else
                     ngx.say("2: peek: ", data)
@@ -87,7 +99,7 @@ GET /t
                 return
             end
 
-            local ok, err = bean:use("default")
+            local ok, err = bean:use("hello-peek2")
             if not ok then
                 ngx.say("2: failed to use tube: ", err)
                 return
@@ -99,9 +111,15 @@ GET /t
                 return
             end
 
+            local ok, err = bean:watch("hello-peek2")
+            if not ok then
+                ngx.say("4: failed to watch: ", err)
+                return
+            end
+
             local id, data = bean:reserve()
             if not id then
-                ngx.say("3: failed to reserve: ", err)
+                ngx.say("5: failed to reserve: ", err)
                 return
             end
 
@@ -113,7 +131,7 @@ GET /t
                 ngx.say("1: bury: ", id)
                 local id, data = bean:peek_buried()
                 if not id then
-                    ngx.say("4: peek_buried failed, id not found ", id)
+                    ngx.say("6: peek_buried failed, id not found ", id)
                     return
                 else
                     ngx.say("4: peek_buried: ", data)
@@ -272,7 +290,6 @@ GET /t
     }
 --- request
 GET /t
---- timeout: 15
 --- response_body_like chop
 1: bury: \d+
 4: peek_delayed hello

@@ -38,21 +38,33 @@ __DATA__
                 return
             end
 
-            local ok, err = bean:watch("default")
+            local ok, err = bean:use("hello-delete")
             if not ok then
-                ngx.say("2: failed to watch: ", err)
+                ngx.say("2: failed to use:", err)
+                return
+            end
+
+            local id, err = bean:put("hello")
+            if not id then
+                ngx.say("3: failed to put: ", err)
+                return
+            end
+
+            local ok, err = bean:watch("hello-delete")
+            if not ok then
+                ngx.say("4: failed to watch: ", err)
                 return
             end
 
             local id, data = bean:reserve()
             if not id then
-                ngx.say("3: failed to reserve: ", id)
+                ngx.say("5: failed to reserve: ", id)
                 return
             else
                 ngx.say("1: reserve: ", id)
                 local ok, err = bean:delete(id)
                 if not ok then
-                    ngx.say("4: failed to delete: ", id)
+                    ngx.say("6: failed to delete: ", id)
                     return
                 end
                 ngx.say("2: delete: ", id)
@@ -63,7 +75,6 @@ __DATA__
     }
 --- request
 GET /t
---- timeout: 15
 --- response_body_like chop
 1: reserve: \d+
 2: delete: \d+
