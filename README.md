@@ -31,12 +31,13 @@ For more details, please see the below Synopsis section.
 Synopsis
 ========
 
+```nginx
     lua_package_path "/path/to/lua-resty-beanstalkd/lib/?.lua;;";
 
     server {
         location /test {
-            content_by_lua '
-
+        
+            content_by_lua_block {
                 local beanstalkd = require 'resty.beanstalkd'
 
                 -- new and connect
@@ -145,10 +146,11 @@ Synopsis
 
                 -- close and quit beanstalkd
                 -- bean:close()
-           ';
+            }
+
         }
     }
-
+```
 
 Author
 ======
